@@ -5,6 +5,7 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 def after_migrate():
 	create_custom_fields(get_custom_fields(), update=True)
 	setup_delivery_trip_workflow()
+	setup_dispatch_kanban()
 
 
 DELIVERY_TRIP_WORKFLOW = "Delivery Trip Dispatch"
@@ -62,6 +63,36 @@ def setup_delivery_trip_workflow():
 		}
 	)
 	workflow.insert(ignore_permissions=True)
+
+
+DISPATCH_KANBAN = "Delivery Dispatch Board"
+
+DISPATCH_KANBAN_COLUMNS = [
+	("Pending", "Gray"),
+	("Assigned", "Blue"),
+	("In Transit", "Orange"),
+	("Delivered", "Green"),
+	("Failed", "Red"),
+]
+
+
+def setup_dispatch_kanban():
+	if frappe.db.exists("Kanban Board", DISPATCH_KANBAN):
+		return
+
+	frappe.get_doc(
+		{
+			"doctype": "Kanban Board",
+			"kanban_board_name": DISPATCH_KANBAN,
+			"reference_doctype": "Delivery Trip",
+			"field_name": "custom_dispatch_status",
+			"private": 0,
+			"columns": [
+				{"column_name": name, "status": "Active", "indicator": color}
+				for name, color in DISPATCH_KANBAN_COLUMNS
+			],
+		}
+	).insert(ignore_permissions=True)
 
 
 def get_custom_fields():
