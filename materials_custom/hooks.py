@@ -152,23 +152,11 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"materials_custom.tasks.all"
-# 	],
-# 	"daily": [
-# 		"materials_custom.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"materials_custom.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"materials_custom.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"materials_custom.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"materials_custom.tasks.check_expiring_credentials",
+	],
+}
 
 # Testing
 # -------
