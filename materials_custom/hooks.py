@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext", "hrms"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -116,6 +116,11 @@ app_license = "mit"
 
 # after_build = "materials_custom.build.after_build"
 
+# Migration
+# ------------------
+
+after_migrate = ["materials_custom.setup.after_migrate"]
+
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
@@ -138,13 +143,11 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Delivery Trip": {
+		"validate": "materials_custom.delivery_trip.validate_dispatch_eligibility",
+	}
+}
 
 # Scheduled Tasks
 # ---------------

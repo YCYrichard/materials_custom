@@ -1,0 +1,99 @@
+import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+
+
+def after_migrate():
+	create_custom_fields(get_custom_fields(), update=True)
+	setup_delivery_trip_workflow()
+
+
+DELIVERY_TRIP_WORKFLOW = "Delivery Trip Dispatch"
+
+DISPATCH_STATES = ["Pending", "Assigned", "In Transit", "Delivered", "Failed"]
+
+DISPATCH_TRANSITIONS = [
+	# state, action, next_state
+	("Pending", "Assign", "Assigned"),
+	("Assigned", "Start Transit", "In Transit"),
+	("In Transit", "Mark Delivered", "Delivered"),
+	("Pending", "Mark Failed", "Failed"),
+	("Assigned", "Mark Failed", "Failed"),
+	("In Transit", "Mark Failed", "Failed"),
+]
+
+DISPATCH_ROLE = "Delivery Manager"
+
+
+def setup_delivery_trip_workflow():
+	if frappe.db.exists("Workflow", DELIVERY_TRIP_WORKFLOW):
+		return
+
+	for state in DISPATCH_STATES:
+		if not frappe.db.exists("Workflow State", state):
+			frappe.get_doc({"doctype": "Workflow State", "workflow_state_name": state}).insert(
+				ignore_permissions=True
+			)
+
+	for _state, action, _next_state in DISPATCH_TRANSITIONS:
+		if not frappe.db.exists("Workflow Action Master", action):
+			frappe.get_doc({"doctype": "Workflow Action Master", "workflow_action_name": action}).insert(
+				ignore_permissions=True
+			)
+
+	workflow = frappe.get_doc(
+		{
+			"doctype": "Workflow",
+			"workflow_name": DELIVERY_TRIP_WORKFLOW,
+			"document_type": "Delivery Trip",
+			"is_active": 1,
+			"workflow_state_field": "custom_dispatch_status",
+			"states": [
+				{"state": state, "doc_status": "0", "allow_edit": DISPATCH_ROLE} for state in DISPATCH_STATES
+			],
+			"transitions": [
+				{
+					"state": state,
+					"action": action,
+					"next_state": next_state,
+					"allowed": DISPATCH_ROLE,
+				}
+				for state, action, next_state in DISPATCH_TRANSITIONS
+			],
+		}
+	)
+	workflow.insert(ignore_permissions=True)
+
+
+def get_custom_fields():
+	return {
+		"Driver": [
+			{
+				"fieldname": "custom_years_of_experience",
+				"fieldtype": "Int",
+				"label": "Years of Experience",
+				"insert_after": "status",
+				"non_negative": 1,
+			},
+		],
+		"Vehicle": [
+			{
+				"fieldname": "custom_inspection_expiry",
+				"fieldtype": "Date",
+				"label": "驗車到期日 (Inspection Expiry)",
+				"insert_after": "end_date",
+			},
+		],
+		"Delivery Trip": [
+			{
+				"fieldname": "custom_dispatch_status",
+				"fieldtype": "Select",
+				"label": "Dispatch Status",
+				"options": "Pending\nAssigned\nIn Transit\nDelivered\nFailed",
+				"default": "Pending",
+				"insert_after": "status",
+				"in_list_view": 1,
+				"in_standard_filter": 1,
+				"no_copy": 1,
+			},
+		],
+	}
