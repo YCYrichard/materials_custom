@@ -6,6 +6,7 @@ def after_migrate():
 	create_custom_fields(get_custom_fields(), update=True)
 	setup_delivery_trip_workflow()
 	setup_dispatch_kanban()
+	setup_salary_components()
 
 
 DELIVERY_TRIP_WORKFLOW = "Delivery Trip Dispatch"
@@ -91,6 +92,27 @@ def setup_dispatch_kanban():
 				{"column_name": name, "status": "Active", "indicator": color}
 				for name, color in DISPATCH_KANBAN_COLUMNS
 			],
+		}
+	).insert(ignore_permissions=True)
+
+
+def setup_salary_components():
+	if frappe.db.exists("Salary Component", "Delivery Distance Bonus"):
+		return
+
+	frappe.get_doc(
+		{
+			"doctype": "Salary Component",
+			"salary_component": "Delivery Distance Bonus",
+			"type": "Earning",
+			"description": "Performance bonus based on distance driven on Delivered trips. "
+			"Amount is injected per payroll period via Additional Salary by "
+			"materials_custom.payroll.create_distance_bonus_additional_salary, "
+			"using the rate configured in Materials Custom Settings.",
+			"depends_on_payment_days": 0,
+			"amount_based_on_formula": 0,
+			"do_not_include_in_total": 0,
+			"statistical_component": 0,
 		}
 	).insert(ignore_permissions=True)
 

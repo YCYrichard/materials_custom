@@ -1,0 +1,56 @@
+{
+ "actions": [],
+ "creation": "2026-08-13 00:00:00.000000",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_section",
+  "distance_bonus_rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "payroll_section",
+   "fieldtype": "Section Break",
+   "label": "Driver Payroll"
+  },
+  {
+   "description": "Delivery distance bonus paid per km of completed (Delivered) trips, used by materials_custom.payroll.create_distance_bonus_additional_salary. Leave at 0 to disable the bonus.",
+   "fieldname": "distance_bonus_rate",
+   "fieldtype": "Currency",
+   "label": "Distance Bonus Rate (per km)"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Materials Custom",
+ "name": "Materials Custom Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
