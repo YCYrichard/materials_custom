@@ -3,7 +3,7 @@ app_title = "Materials Custom"
 app_publisher = "Richard"
 app_description = "Custom ERP extensions for materials trading operations"
 app_email = "richardyehyu@gmail.com"
-app_license = "mit"
+app_license = "gpl-3.0"
 
 # Apps
 # ------------------
